@@ -6,7 +6,7 @@ import _thread # used for simple multi-threading:
 										# keyboard listener
 										# UDP packet sender
 
-webbrowser.open("http://pi-camera:8000")
+webbrowser.open("http://pi.cam:8000")
 
 On = 164  # sent when ^ is pressed
 Off = 148 # duty cycle sent when nothing pressed
