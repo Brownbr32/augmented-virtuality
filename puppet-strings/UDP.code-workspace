@@ -1,0 +1,23 @@
+{
+    "folders": [
+        {
+            "name": "Marionette",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "editor.tabSize": 2,
+        "editor.insertSpaces": false,
+        "files.associations": {
+            "random": "cpp",
+            "*.tcc": "cpp",
+            "array": "cpp",
+            "deque": "cpp",
+            "list": "cpp",
+            "string": "cpp",
+            "unordered_map": "cpp",
+            "vector": "cpp",
+            "initializer_list": "cpp"
+        }
+    }
+}

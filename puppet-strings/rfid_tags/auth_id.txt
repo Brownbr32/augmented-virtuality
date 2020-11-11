@@ -1,0 +1,19 @@
+ UID tag : C0 70 0D 32
+
+ UID tag : C3 25 EA 40
+
+ UID tag : D0 78 28 32
+
+ UID tag : C6 EA F6 2B
+
+ UID tag : B3 B1 10 40
+
+ UID tag : 05 6B C4 22
+
+ UID tag : 99 C8 04 BA
+
+ UID tag : 69 ED 22 B9
+
+ UID tag : 49 FD 4C C2
+
+ UID tag : 69 49 24 B9
