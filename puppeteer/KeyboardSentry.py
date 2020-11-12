@@ -6,13 +6,23 @@ import _thread # used for simple multi-threading:
 										# keyboard listener
 										# UDP packet sender
 
-webbrowser.open("http://pi.cam:8000")
+# Linda:
+# 1. set up logging
+# 2. create different test log files
+#    a. perodic taps
+#    b. consistent direction hold
+#    c. other random key interactions
+# 3. plot them (python ML/plotting is ideal, but Matlab works great, too)
 
+webbrowser.open("http://pi.cam:8000") # Linda
+
+
+# Linda: Wait for init.json, this would be an added feature
 On = 164  # sent when ^ is pressed
 Off = 148 # duty cycle sent when nothing pressed
 Rev = 132 # sent when \/ pressed
 
-# UDP_IP = "192.168.86.174"
+# Linda: set this up so user inputs hostName if hostName == ""
 hostName = "rc-module"
 UDP_IP = socket.gethostbyname(hostName)
 UDP_PORT = 4210
@@ -23,8 +33,13 @@ print("UDP target port: %s" % UDP_PORT)
 driveInc = 0
 steerInc = 0
 
+# Linda: set sock to NULL (or 0) if hostName != VALID
 sock = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
+# NULL (or 0) socket will help reduce unnecessary network load
+
+
+logArray = []			# Linda							 
 keyDict = { # data shared between processes
 	Key.up: {
 		"drive": 6,
@@ -81,6 +96,13 @@ def udp_loop():
 				if "drive" in keyDict.get(thisKey):
 					drive = getVal(int(drive),keyDict.get(thisKey).get("drive"))
 		print(bytes([drive,0,0,0,steer,0,0,0]))
+		# Linda
+		## log values sent
+		#   steer[0], drive[0]
+		#   steer[1], drive[1]
+		# 	.				,	.
+		# 	.				,	.
+		# 	.				,	.
 		sock.sendto(bytes([drive,0,0,0,steer,0,0,0]), (UDP_IP, UDP_PORT))
 		time.sleep(.15)
 
@@ -96,11 +118,35 @@ def on_release(key):
 		keyDict.get(key)["send"] = 0
 		keyDict.get(keyDict.get(key).get("key"))["send"] = 1
 	if key == Key.esc:
+		# Linda: save
 		quit()
 
+# Linda: Only start this thread if the socket is correctly set up
 _thread.start_new_thread(udp_loop, ())
-# Collect events until released
+# this is the last step to saving your network's load
+
+
+
+# This is the keyboard listener. Uses:
+#		on_press(key): which sets corresponding 
+# 		keyDict (edict pun) definition
+#		on_release(key): which resets corresponding 
+# 		keyDict (edict pun) definition
 with Listener(
         on_press=on_press,
         on_release=on_release) as listener:
     listener.join()
+
+
+## Linda: Maybe you could separate the script into the following files:
+#			main.py
+#			keyboard.py
+#			udp.py
+#				add logging here
+#			ml.py
+#				take shared logging data and analyze here
+# if done, you'll need to look at threading. you have the following options:
+#				_thread - lightweight, simple, limited in ability
+#				threading - https://realpython.com/intro-to-python-threading/
+#				thread - https://www.tutorialspoint.com/python/python_multithreading.htm
+#									^ I tend to trust tutorialspoint.com ^
