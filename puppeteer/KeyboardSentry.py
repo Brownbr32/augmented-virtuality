@@ -5,6 +5,7 @@ import time # used for delays
 import _thread # used for simple multi-threading:
 										# keyboard listener
 										# UDP packet sender
+import csv #save a csv file for testing code
 
 # Linda:
 # 1. set up logging
@@ -14,8 +15,10 @@ import _thread # used for simple multi-threading:
 #    c. other random key interactions
 # 3. plot them (python ML/plotting is ideal, but Matlab works great, too)
 
-webbrowser.open("http://pi.cam:8000") # Linda
+# webbrowser.open("http://pi.cam:8000") # Linda
 
+steerList = []
+driveList = []
 
 # Linda: Wait for init.json, this would be an added feature
 On = 164  # sent when ^ is pressed
@@ -24,18 +27,19 @@ Rev = 132 # sent when \/ pressed
 
 # Linda: set this up so user inputs hostName if hostName == ""
 hostName = "rc-module"
-UDP_IP = socket.gethostbyname(hostName)
-UDP_PORT = 4210
+#UDP_IP = socket.gethostbyname(hostName)
+#UDP_PORT = 4210
 
-print("UDP target IP: %s" % UDP_IP)
-print("UDP target port: %s" % UDP_PORT)
+#print("UDP target IP: %s" % UDP_IP)
+#print("UDP target port: %s" % UDP_PORT)
 
 driveInc = 0
 steerInc = 0
 
+keepGoing = True
 # Linda: set sock to NULL (or 0) if hostName != VALID
-sock = socket.socket(socket.AF_INET, # Internet
-                     socket.SOCK_DGRAM) # UDP
+#sock = socket.socket(socket.AF_INET, # Internet
+#                     socket.SOCK_DGRAM) # UDP
 # NULL (or 0) socket will help reduce unnecessary network load
 
 
@@ -88,7 +92,8 @@ def getVal(current, increment):
 def udp_loop():
 	steer = Off
 	drive = Off
-	while(True):
+	global keepGoing
+	while(keepGoing):
 		for thisKey in keyDict:
 			if keyDict.get(thisKey)["send"]:
 				if "steer" in keyDict.get(thisKey):
@@ -103,23 +108,52 @@ def udp_loop():
 		# 	.				,	.
 		# 	.				,	.
 		# 	.				,	.
-		sock.sendto(bytes([drive,0,0,0,steer,0,0,0]), (UDP_IP, UDP_PORT))
+		steerList.append(steer)
+		driveList.append(drive)
+		#sock.sendto(bytes([drive,0,0,0,steer,0,0,0]), (UDP_IP, UDP_PORT))
 		time.sleep(.15)
 
 
 
 def on_press(key):
-	if key in keyDict:
-		keyDict.get(key)["send"] = 1
-		keyDict.get(keyDict.get(key).get("key"))["send"] = 0
+	if keepGoing:
+		if key in keyDict:
+			keyDict.get(key)["send"] = 1
+			keyDict.get(keyDict.get(key).get("key"))["send"] = 0
 
 def on_release(key):
-	if key in keyDict:
-		keyDict.get(key)["send"] = 0
-		keyDict.get(keyDict.get(key).get("key"))["send"] = 1
-	if key == Key.esc:
-		# Linda: save
-		quit()
+	if keepGoing:
+		if key in keyDict:
+			keyDict.get(key)["send"] = 0
+			keyDict.get(keyDict.get(key).get("key"))["send"] = 1
+		if key == Key.esc:
+			# Linda: save
+			endInput()
+			saveSteerAndDrive(steerList,driveList)
+			quit()
+
+def saveSteerAndDrive(steer,drive):
+	fields = ['steer', 'drive']
+	rows = []
+	for x in range(len(steer)):
+		steerVal = steer[x]
+		driveVal = drive[x]
+		innerRow = [steerVal, driveVal]
+		rows.append(innerRow)
+	write = csv.writer(open('test.csv', 'w', newline=''))
+	write.writerow(fields) 
+	write.writerows(rows) 
+
+def plotSteerAndDrive(steer,drive):
+	steerLength = len(steer)
+	driveLength = len(drive)
+	driveIndex = np.arange(0, driveLength-1, 1)
+	steerIndex = np.arange(0, steerLength-1, 1)
+	plt.plot(steerIndex, steer, 'r--', driveIndex, drive, 'bs')
+
+def endInput():
+	global keepGoing
+	keepGoing = False
 
 # Linda: Only start this thread if the socket is correctly set up
 _thread.start_new_thread(udp_loop, ())
@@ -133,9 +167,9 @@ _thread.start_new_thread(udp_loop, ())
 #		on_release(key): which resets corresponding 
 # 		keyDict (edict pun) definition
 with Listener(
-        on_press=on_press,
-        on_release=on_release) as listener:
-    listener.join()
+				on_press=on_press,
+				on_release=on_release) as listener:
+		listener.join()
 
 
 ## Linda: Maybe you could separate the script into the following files:
