@@ -5,6 +5,8 @@ import time # used for delays
 import _thread # used for simple multi-threading:
 										# keyboard listener
 										# UDP packet sender
+import matplotlib.pyplot as plt #used for graphing (testing the code)
+import numpy as np #used for graphing (testing the code)
 import csv #save a csv file for testing code
 
 # Linda:
@@ -101,13 +103,7 @@ def udp_loop():
 				if "drive" in keyDict.get(thisKey):
 					drive = getVal(int(drive),keyDict.get(thisKey).get("drive"))
 		print(bytes([drive,0,0,0,steer,0,0,0]))
-		# Linda
-		## log values sent
-		#   steer[0], drive[0]
-		#   steer[1], drive[1]
-		# 	.				,	.
-		# 	.				,	.
-		# 	.				,	.
+		#add both steer and drive values to lists to be saved into a file later
 		steerList.append(steer)
 		driveList.append(drive)
 		#sock.sendto(bytes([drive,0,0,0,steer,0,0,0]), (UDP_IP, UDP_PORT))
@@ -133,23 +129,24 @@ def on_release(key):
 			quit()
 
 def saveSteerAndDrive(steer,drive):
-	fields = ['steer', 'drive']
+	#import needed for this is csv
+	fields = ['steer', 'drive'] #header values
 	rows = []
 	for x in range(len(steer)):
 		steerVal = steer[x]
 		driveVal = drive[x]
 		innerRow = [steerVal, driveVal]
-		rows.append(innerRow)
-	write = csv.writer(open('test.csv', 'w', newline=''))
+		rows.append(innerRow) #make row for the file with steer, drive
+	write = csv.writer(open('test.csv', 'w', newline='')) #open file for writing
 	write.writerow(fields) 
-	write.writerows(rows) 
+	write.writerows(rows) #file is finished writing and is in the project directory
 
-def plotSteerAndDrive(steer,drive):
-	steerLength = len(steer)
-	driveLength = len(drive)
-	driveIndex = np.arange(0, driveLength-1, 1)
-	steerIndex = np.arange(0, steerLength-1, 1)
-	plt.plot(steerIndex, steer, 'r--', driveIndex, drive, 'bs')
+# def plotSteerAndDrive(steer,drive):
+# 	steerLength = len(steer)
+# 	driveLength = len(drive)
+# 	driveIndex = np.arange(0, driveLength-1, 1)
+# 	steerIndex = np.arange(0, steerLength-1, 1)
+# 	plt.plot(steerIndex, steer, 'r--', driveIndex, drive, 'bs')
 
 def endInput():
 	global keepGoing
