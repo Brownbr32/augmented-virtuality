@@ -1,8 +1,12 @@
-import webbrowser # allows the opening of google chrome as a viewer
-from pynput.keyboard import Key, Listener # used to listen to keyboard input
-import socket # used to send UDP packets
-import time # used for delays
-import _thread # used for simple multi-threading:
+#!.venv/bin/python3
+
+import sys					# used for testing.Any second arg triggers only key loggers
+import webbrowser 	# allows the opening of google chrome as a viewer
+from pynput.keyboard import Key, Listener 
+										# used to listen to keyboard input
+import socket 			# used to send UDP packets
+import time 				# used for delays
+import _thread 			# used for simple multi-threading:
 										# keyboard listener
 										# UDP packet sender
 
@@ -13,8 +17,24 @@ import _thread # used for simple multi-threading:
 #    b. consistent direction hold
 #    c. other random key interactions
 # 3. plot them (python ML/plotting is ideal, but Matlab works great, too)
+IP_on = False
 
-webbrowser.open("http://pi.cam:8000") # Linda
+if (sys.argv == 1):
+	IP_on = True
+
+if (IP_on):
+	webbrowser.open("http://pi.cam:8000")
+	hostName = "rc-module"
+	UDP_IP = socket.gethostbyname(hostName)
+	UDP_PORT = 4210
+
+	print("UDP target IP: %s" % UDP_IP)
+	print("UDP target port: %s" % UDP_PORT)
+
+	sock = socket.socket(socket.AF_INET, # Internet
+											socket.SOCK_DGRAM) # UDP
+
+
 
 
 # Linda: Wait for init.json, this would be an added feature
@@ -22,22 +42,8 @@ On = 164  # sent when ^ is pressed
 Off = 148 # duty cycle sent when nothing pressed
 Rev = 132 # sent when \/ pressed
 
-# Linda: set this up so user inputs hostName if hostName == ""
-hostName = "rc-module"
-UDP_IP = socket.gethostbyname(hostName)
-UDP_PORT = 4210
-
-print("UDP target IP: %s" % UDP_IP)
-print("UDP target port: %s" % UDP_PORT)
-
 driveInc = 0
 steerInc = 0
-
-# Linda: set sock to NULL (or 0) if hostName != VALID
-sock = socket.socket(socket.AF_INET, # Internet
-                     socket.SOCK_DGRAM) # UDP
-# NULL (or 0) socket will help reduce unnecessary network load
-
 
 logArray = []			# Linda							 
 keyDict = { # data shared between processes
@@ -72,20 +78,30 @@ keyDict = { # data shared between processes
 }
 
 
+# def getVal(current, increment):
+# 	if(increment == 0):
+# 		return int((current + Off)/(2)-1)
+# 	if(increment*(current-Off) > 0):
+# 		current += increment
+# 		current = current*7 + Off
+# 		current /= 8
+# 		return int(current)
+# 	if(increment*(current-Off) <= 0):
+# 		return current + 2*(increment)
+
+
+
+
+damper = 0.3
 def getVal(current, increment):
-	if(increment == 0):
-		return int((current + Off)/(2)-1)
-	if(increment*(current-Off) > 0):
-		current += increment
-		current = current*7 + Off
-		current /= 8
-		return int(current)
-	if(increment*(current-Off) <= 0):
-		return current + 2*(increment)
+	distance = current - Off
+	current += increment
+	current -= damper*(distance)
+	return int(current)
 
 
 
-def udp_loop():
+def udp_loop(IP_on):
 	steer = Off
 	drive = Off
 	while(True):
@@ -95,15 +111,10 @@ def udp_loop():
 					steer = getVal(int(steer),keyDict.get(thisKey).get("steer"))
 				if "drive" in keyDict.get(thisKey):
 					drive = getVal(int(drive),keyDict.get(thisKey).get("drive"))
-		print(bytes([drive,0,0,0,steer,0,0,0]))
-		# Linda
-		## log values sent
-		#   steer[0], drive[0]
-		#   steer[1], drive[1]
-		# 	.				,	.
-		# 	.				,	.
-		# 	.				,	.
-		sock.sendto(bytes([drive,0,0,0,steer,0,0,0]), (UDP_IP, UDP_PORT))
+		print (bytes([drive%256,int(drive/256),0,0,steer%256,int((steer/256)%3),0,0]))
+		# Linda - log info here
+		if (IP_on):
+			sock.sendto(bytes([drive,0,0,0,steer,0,0,0]), (UDP_IP, UDP_PORT))
 		time.sleep(.15)
 
 
@@ -121,9 +132,9 @@ def on_release(key):
 		# Linda: save
 		quit()
 
-# Linda: Only start this thread if the socket is correctly set up
-_thread.start_new_thread(udp_loop, ())
-# this is the last step to saving your network's load
+
+
+_thread.start_new_thread(udp_loop, (IP_on,))
 
 
 
