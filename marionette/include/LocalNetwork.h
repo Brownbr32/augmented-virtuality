@@ -6,13 +6,8 @@
 
 const int netSize = 3;
 struct LocalNetwork {
-    // String names[netSize] = {"N.U.T.S.2", "The Anti-Nexus", "Mr Brown Can Moo"};
-    // String passes[netSize] = {"BestD@S0Frrr", "Dape+Vape", "C@n y0u?"};
-    // String pass = "BestD@S0Frrr";
     String name = "pi_camera";
     String pass = "seniorproject";
-  //  String name = "Mr Brown Can Moo";
-  //  String pass = "C@n y0u?";
     String hostname = "rc-module";
     String ip_port;
 		IPAddress piCam;
