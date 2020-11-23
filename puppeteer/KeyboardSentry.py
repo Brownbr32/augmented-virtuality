@@ -31,6 +31,8 @@ if (IP_on):
 
 steerList = []
 driveList = []
+sampleList = []
+sample = 1
 
 # Linda: Wait for init.json, this would be an added feature
 On = 164  # sent when ^ is pressed
@@ -106,6 +108,7 @@ def getVal(current, increment):
 def udp_loop(IP_on):
 	steer = Off
 	drive = Off
+	global sample
 	while(True):
 		for thisKey in keyDict:
 			if keyDict.get(thisKey)["send"]:
@@ -117,6 +120,8 @@ def udp_loop(IP_on):
 		#add both steer and drive values to lists to be saved into a file later
 		steerList.append(steer)
 		driveList.append(drive)
+		sampleList.append(sample)
+		sample += 1
 		if (IP_on):
 			sock.sendto(bytes([drive,0,0,0,steer,0,0,0]), (UDP_IP, UDP_PORT))
 		time.sleep(.15)
@@ -133,17 +138,18 @@ def on_release(key):
 		keyDict.get(key)["send"] = 0
 		keyDict.get(keyDict.get(key).get("key"))["send"] = 1
 	if key == Key.esc:
-		saveSteerAndDrive(steerList,driveList)
+		saveSteerAndDrive(steerList,driveList,sampleList)
 		quit()
 
-def saveSteerAndDrive(steer,drive):
+def saveSteerAndDrive(steer,drive,sampleNums):
 	#import needed for this is csv
-	fields = ['steer', 'drive'] #header values
+	fields = ['sample','steer', 'drive'] #header values
 	rows = []
 	for x in range(len(steer)):
 		steerVal = steer[x]
 		driveVal = drive[x]
-		innerRow = [steerVal, driveVal]
+		sampleNum = sampleNums[x]
+		innerRow = [sampleNum, steerVal, driveVal]
 		rows.append(innerRow) #make row for the file with steer, drive
 	write = csv.writer(open('test.csv', 'w', newline='')) #open file for writing
 	write.writerow(fields) 
