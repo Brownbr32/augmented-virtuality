@@ -14,7 +14,7 @@ import _thread 			# used for simple multi-threading:
 
 IP_on = False
 
-if (sys.argv == 1):
+if (len(sys.argv) < 2):
 	IP_on = True
 
 if (IP_on):
