@@ -15,8 +15,8 @@ class Device {
       // logging potential
     uint8_t pin;    // pin that device is connected to
     DataType* val;  // a pointer to (in this case int), where 
-      // array's first and second `int` are stored. This skips multiple copies and 
-      // optimizes for speed
+      // array's first and second `int` are stored. This skips 
+      // multiple copies and optimizes for speed
 
     // constructor (these are pointers because DLL is used to enhance flexibility)
     Device(const char name[10], uint8_t pin, DataType* val) {

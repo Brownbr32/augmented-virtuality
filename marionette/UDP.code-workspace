@@ -8,6 +8,7 @@
     "settings": {
         "editor.tabSize": 2,
         "editor.insertSpaces": false,
+        "editor.rulers": [70,100],
         "files.associations": {
             "random": "cpp",
             "*.tcc": "cpp",
