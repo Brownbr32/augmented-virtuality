@@ -1,8 +1,3 @@
-/*
- *  Created by TheCircuit
-*/
-
-
 #include <SPI.h>
 #include <MFRC522.h>
 
