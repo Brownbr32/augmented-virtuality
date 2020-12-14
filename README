@@ -1,0 +1,33 @@
+If you're looking at this, you probably want to know how to use this code. First, please note:
+
+This code was used on the following hardware:
+  + marionette:
+    - RC Car: Redcat Everest
+    - NodeMCU (model 12E)
+    - H-Bridge
+    - Power Bank (any with 2 USBs should work)
+    - breadboard x2
+  + beholder-on-wheels:
+    - Raspberry Pi 0 W
+    - PI camera
+  + puppeteer:
+    - Windows, Linux computers that run python 3
+
+Here's the following code locations:
+  + puppeteer:
+    - computer of your choice
+    - Use pip3 to install:
+      - matplotlib
+      - numpy
+      - pynput
+      - any other missing module when:
+            `python3 KeyboardSentry.py`
+          is run.
+  + beholder-on-wheels:
+    - Raspberry Pi 0 W
+  + marionette:
+    - NodeMCU. PlatformIO was used
+    
+    
+    
+    
