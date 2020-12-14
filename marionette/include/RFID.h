@@ -1,8 +1,3 @@
-/*
- *  Created by TheCircuit
-*/
-
-
 #include <SPI.h>
 #include <MFRC522.h>
 
@@ -17,20 +12,29 @@ class RFID: public MFRC522 {
   }
   public:
     RFID(int sda = 15, int rst = 0) : MFRC522(sda, rst) {
-      SPI.begin();
-      PCD_Init();
-      PCD_DumpVersionToSerial();
-      reactivationTime = 0;
+      SPI.begin();  // initializes SPI communication
+      PCD_Init();   // inits state for RFID tag
+      PCD_DumpVersionToSerial();  // dumps data to serial, purpose: dbg
+      reactivationTime = 0; // resets reactivationTime
     }
 
+    // if tag is run over, resets reactivationTime
     uint checkMe(bool printEnable = false) {
-      if (PICC_IsNewCardPresent() && PICC_ReadCardSerial()) {
+
+      // if both of these trigger, then a tag has been run over
+      if (PICC_IsNewCardPresent() && PICC_ReadCardSerial()) { // therefore
+        // begin debug info
         char list[4];
         for(int i = 0; i < 12; i++)
           list[i] = (char)uid.uidByte[i];
         if(printEnable) Serial.printf(tagNotice.c_str(),list);
+        // end debug info
+      
+        // resets reactivationTime
         reactivationTime = millis() + MILLIS_DELAY;
       }
-      return reactivationTime;
+      return reactivationTime; // returns remaining time to reactivation
+        // if reactivationTime <= time
+          // then heed incoming UDP packets.
     }
 };
