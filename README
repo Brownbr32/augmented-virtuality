@@ -7,7 +7,7 @@ This code was used on the following hardware:
     - H-Bridge
     - Power Bank (any with 2 USBs should work)
     - breadboard x2
-  + beholder-on-wheels:
+  + wheatly-on-wheels:
     - Raspberry Pi 0 W
     - PI camera
   + puppeteer:
@@ -23,11 +23,12 @@ Here's the following code locations:
       - any other missing module when:
             `python3 KeyboardSentry.py`
           is run.
-  + beholder-on-wheels:
+  + wheatley-on-wheels:
     - Raspberry Pi 0 W
   + marionette:
     - NodeMCU. PlatformIO was used
     
     
-    
-    
+The Raspberry Pi 0 W also has the following tutorials running on it:
+1. Setting up a Raspberry Pi headless.
+2. Raspberry Pi access point (change eth0 to wlan1)
