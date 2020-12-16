@@ -13,7 +13,7 @@ This code was used on the following hardware:
   + puppeteer:
     - Windows, Linux computers that run python 3
 
-Here's the following code locations:
+Here's the following code destinations:
   + puppeteer:
     - computer of your choice
     - Use pip3 to install:
